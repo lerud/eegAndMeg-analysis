@@ -27,8 +27,8 @@ import pickle
 import glob
 import time
 
-from localCode.freqAnalysis import *
-from localCode.deconvGeneralized import *
+from neuroAndSignalTools.freqAnalysis import *
+from neuroAndSignalTools.deconvGeneralized import *
 
 matplotlib.use('QtAgg')
 plt.ion()
