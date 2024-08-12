@@ -45,6 +45,22 @@ conditions=['A','B','C','D']
 # conditions=['D']
 skipDist=np.array([[2,5,10,13],[2,5,8,11],[2,5,10,15],[2,5,7,12]])  # Skip these distractors, because these trials have no distractor
 
+# dBSPL=70
+
+# These are the approximate levels of the targets and distractors separately, such that their sum is always 70 dBSPL, copied and pasted from the MATLAB script that generates the stimulus wav files
+dBSPLs=np.stack((np.array([[68.5000000000000,	70,	67,	68.5000000000000,	70,	67,	67,	68.5000000000000,	64.5000000000000,	70,	67,	67,	70,	67,	68.5000000000000,	64.5000000000000],
+                           [64.5000000000000,	0,	67,	64.5000000000000,	0,	67,	67,	64.5000000000000,	68.5000000000000,	0,	67,	67,	0,	67,	64.5000000000000,	68.5000000000000],
+                           [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70]]),
+                 np.array([[68.5000000000000,	70,	64.5000000000000,	68.5000000000000,	70,	68.5000000000000,	67,	70,	67,	67,	70,	67,	67,	67,	68.5000000000000,	64.5000000000000],
+                           [64.5000000000000,	0,	68.5000000000000,	64.5000000000000,	0,	64.5000000000000,	67,	0,	67,	67,	0,	67,	67,	67,	64.5000000000000,	68.5000000000000],
+                           [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70]]),
+                 np.array([[67,	70,	67,	67,	70,	68.5000000000000,	67,	68.5000000000000,	64.5000000000000,	70,	68.5000000000000,	67,	68.5000000000000,	67,	70,	64.5000000000000],
+                           [67,	0,	67,	67,	0,	64.5000000000000,	67,	64.5000000000000,	68.5000000000000,	0,	64.5000000000000,	67,	64.5000000000000,	67,	0,	68.5000000000000],
+                           [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70]]),
+                 np.array([[67,	70,	67,	67,	70,	67,	70,	68.5000000000000,	67,	68.5000000000000,	64.5000000000000,	70,	68.5000000000000,	67,	68.5000000000000,	64.5000000000000],
+                           [67,	0,	67,	67,	0,	67,	0,	64.5000000000000,	67,	64.5000000000000,	68.5000000000000,	0,	64.5000000000000,	67,	64.5000000000000,	68.5000000000000],
+                           [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70]])),axis=2)
+
 #matFileNames=['longTrialNoTrigger_forReg_1.mat','longTrialNoTrigger_forReg_2.mat','longTrialNoTrigger_forReg_3.mat','longTrialNoTrigger_forReg_4.mat','longTrialNoTrigger_forReg_5.mat']
 #matFieldName='currentAllTrials'
 
@@ -84,7 +100,10 @@ for i, mainDir in enumerate(mainDirs):
             #print(stimulus.shape)
             #fs=sp.io.loadmat(f'{regressorDir}{matFileName}')['fs']
             stimulus=sp.signal.resample(stimulus,int(len(stimulus)*fsForModel/fs))
-            stimulus=cochlea.set_dbspl(stimulus,70)
+            
+            # Because of copying and pasting from MATLAB, the dimensions don't come in the same order as the loops, so unfortunately it's not [i,j,k]
+            stimulus=cochlea.set_dbspl(stimulus,dBSPLs[i,k,j])
+            
             print(f'Stimulus has been resampled and normalized resulting in shape {stimulus.shape}')
             print('\n')
 
