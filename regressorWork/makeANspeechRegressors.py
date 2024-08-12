@@ -22,7 +22,7 @@ import glob
 import cochlea
 import time
 
-from localCode.freqAnalysis import *
+from neuroAndSignalTools.freqAnalysis import *
 
 matplotlib.use('QtAgg')
 plt.ion()
