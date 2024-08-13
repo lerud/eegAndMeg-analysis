@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import glob
 import cochlea
 import time
+import joblib
 
 from neuroAndSignalTools.freqAnalysis import *
 
@@ -31,6 +32,9 @@ plt.ion()
 # %autoreload 2
 
 # %%
+n_jobs=16
+parallelBackend='loky'
+
 #regressorDir='/Users/karl/Dropbox/UMD/ffrTests/'
 
 #mainDirs=['/Users/karl/map/stimAndPredictors/targets/','/Users/karl/map/stimAndPredictors/distractors/','/Users/karl/map/stimAndPredictors/mixes/']
@@ -43,7 +47,7 @@ conditions=['A','B','C','D']
 # mainDirs=['/Users/karl/map/stimAndPredictors/mixes/']
 # regTypes=['mix']
 # conditions=['D']
-skipDist=np.array([[2,5,10,13],[2,5,8,11],[2,5,10,15],[2,5,7,12]])  # Skip these distractors, because these trials have no distractor
+skipDist=np.array([[2,5,10,13],[2,5,8,11],[2,5,10,15],[2,5,7,12]])  # One-indexed indices! Skip these distractors, because these trials have no distractor
 
 # dBSPL=70
 
@@ -66,6 +70,9 @@ dBSPLs=np.stack((np.array([[68.5000000000000,	70,	67,	68.5000000000000,	70,	67,	
 
 anf_types=['hsr']  # select lsr, msr, or hsr for spont rate
 
+# fileSuffix='_ANmodel.pickle'
+fileSuffix='_ANmodel_correctedLevels.pickle'
+
 # cfs=(125, 20000, 100)  # This was in the Cochlea repository example
 # cfs=(125, 6000, 50)  # 43 comes from the scripting I inherited from Maddox/Vrishab
 cfs=(125, 16000, 43)  # 43 comes from the scripting I inherited from Maddox/Vrishab
@@ -78,7 +85,9 @@ for i, mainDir in enumerate(mainDirs):
     
     for j, condition in enumerate(conditions):
         
-        for k in np.arange(1,17):
+        # for k in np.arange(1,17):
+            
+        def doMultANmodels(i,j,k,condition,regTypes,mainDir,fsForModel,fsForRegressor,dBSPLs,skipDist,anf_types,cfs,fileSuffix):
 
             ### Make sound
             #fs = 100e3
@@ -102,7 +111,7 @@ for i, mainDir in enumerate(mainDirs):
             stimulus=sp.signal.resample(stimulus,int(len(stimulus)*fsForModel/fs))
             
             # Because of copying and pasting from MATLAB, the dimensions don't come in the same order as the loops, so unfortunately it's not [i,j,k]
-            stimulus=cochlea.set_dbspl(stimulus,dBSPLs[i,k,j])
+            stimulus=cochlea.set_dbspl(stimulus,dBSPLs[i,k-1,j])
             
             print(f'Stimulus has been resampled and normalized resulting in shape {stimulus.shape}')
             print('\n')
@@ -132,7 +141,7 @@ for i, mainDir in enumerate(mainDirs):
                 print(f'AN model to be saved is shape {rates.shape}')
                 print('\n')
 
-                eb.save.pickle(rates,f'{mainDir}predictors/{wavFileName[:-4]}_ANmodel.pickle')
+                eb.save.pickle(rates,f'{mainDir}predictors/{wavFileName[:-4]}{fileSuffix}')
 
 
 
@@ -141,6 +150,8 @@ for i, mainDir in enumerate(mainDirs):
                 print('\n')
 
 
+        joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doMultANmodels)(i,j,k,condition,regTypes,mainDir,fsForModel,fsForRegressor,dBSPLs,skipDist,anf_types,cfs,fileSuffix) for k in np.arange(1,17))
+                
                 ### Plot rates
                 #fig, ax = plt.subplots()
                 #img = ax.imshow(
