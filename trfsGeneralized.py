@@ -132,6 +132,8 @@ debugCorrection=0  # Positive or negative time duration in seconds to add to all
 
 denoiseMatlab=True
 
+edgePad=.001  # Edge padding in seconds; compute the TRFs with this padding included, but don't plot/save/analyze those edges, because of (mostly time-domain) edge artifacts
+
 ##################
 # Make sure to change the regressor below between AN model and impulses if needed!
 ##################
@@ -623,7 +625,7 @@ if doPresentation:
     
     if doParallel:
     
-        def doAllPresentationEpochs(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd):
+        def doAllPresentationEpochs(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad):
             epoch=allPresEpochs[i]
             if allRegressors[i] is not None:
                 regressor=allRegressors[i]
@@ -638,19 +640,21 @@ if doPresentation:
             print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
             print('\n')
             #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=windowStart*fs, windowEnd=windowEnd*fs)
+            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
             #if regressor.shape[0]>response.shape[0]:
             #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
             #else:
             #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
             # TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
             # TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
+            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
+            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
             if allRegressors[i] is not None:
                 return TRFfreq, TRFtime
             else:
                 return TRFfreq*np.nan, TRFtime*np.nan
 
-        results = joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doAllPresentationEpochs)(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd) for i in range(len(allPresEpochs)))
+        results = joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doAllPresentationEpochs)(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad) for i in range(len(allPresEpochs)))
 
         for i in range(len(results)):
             TRFsFreqPres[i,:results[i][0].shape[0],:]=results[i][0]
@@ -674,11 +678,13 @@ if doPresentation:
             print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
             print('\n')
             #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=windowStart*fs, windowEnd=windowEnd*fs)
+            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
             #if regressor.shape[0]>response.shape[0]:
             #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
             #else:
             #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
+            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
+            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
             if allRegressors[i] is not None:
                 TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq
                 TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime
@@ -711,7 +717,7 @@ if doTriggy:
     
     if doParallel:
     
-        def doAllTriggyEpochs(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd):
+        def doAllTriggyEpochs(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad):
             epoch=allTrigEpochs[i]
             if allRegressors[i] is not None:
                 regressor=allRegressors[i]
@@ -726,19 +732,21 @@ if doTriggy:
             print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
             print('\n')
             #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=windowStart*fs, windowEnd=windowEnd*fs)
+            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
             #if regressor.shape[0]>response.shape[0]:
             #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
             #else:
             #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
             # TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
             # TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
+            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
+            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
             if allRegressors[i] is not None:
                 return TRFfreq, TRFtime
             else:
                 return TRFfreq*np.nan, TRFtime*np.nan
 
-        results = joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doAllTriggyEpochs)(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd) for i in range(len(allTrigEpochs)))
+        results = joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doAllTriggyEpochs)(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad) for i in range(len(allTrigEpochs)))
 
         for i in range(len(results)):
             TRFsFreqTrig[i,:results[i][0].shape[0],:]=results[i][0]
@@ -762,11 +770,13 @@ if doTriggy:
             print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
             print('\n')
             #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=windowStart*fs, windowEnd=windowEnd*fs)
+            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
             #if regressor.shape[0]>response.shape[0]:
             #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
             #else:
             #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
+            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
+            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
             if allRegressors[i] is not None:
                 TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq
                 TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime
