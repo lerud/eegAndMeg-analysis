@@ -44,21 +44,21 @@ presStopCorrection=None
 #subject='R2881';badChanList=['P3','Fp1','CP6']
 
 # subject='R3089';badChanList=['P7','CP6','C4','T7','CP5','P3','P4','O2','Oz','PO4'];condition='B';presStopCorrection=0
-subject='R3093';badChanList=['Oz','P8','CP6','Fp2'];condition='C';presStopCorrection=0
+# subject='R3093';badChanList=['Oz','P8','CP6','Fp2'];condition='C';presStopCorrection=0
 # subject='R3095';badChanList=['P7','T8','O2','PO4'];condition='D';presStopCorrection=0  # and possibly O2 and PO4
 
 # subject='R3151';badChanList=['C3','FC5'];condition='A'
 # subject='R2774';badChanList=['Fp1','AF3','F7','F3','Fz','F4','FC6','C3','CP5','Pz','CP6','P8','FC1','FC5','T7','AF4'];condition='B'
 # subject='R3152';badChanList=['T7','C3','P7','Pz','O1','P8','CP6'];condition='C'
-# subject='R2877';badChanList=['CP5','P7','F3','FC5','C3','P4','FC6','FC1','P8'];condition='D'
+subject='R2877';badChanList=['CP5','P7','F3','FC5','C3','P4','FC6','FC1','P8'];condition='D'
 
 doParallel=True
 n_jobs=16
 parallelBackend='loky'
 # parallelBackend='multiprocessing'
 
-doPresentation=True
-doTriggy=False
+doPresentation=False
+doTriggy=True
 
 subDirs='/eegAndMeg/eeg/'
 #subDirs='/ffrTests/'
@@ -100,17 +100,17 @@ matFilename=runName+'SnsTspcaOutput.mat'
 
 
 # regressorDir='/Users/karl/map/stimAndPredictors/mixes/predictors/'
-# regressorDir='/Users/karl/map/stimAndPredictors/targets/predictors/'
-regressorDir='/Users/karl/map/stimAndPredictors/distractors/predictors/'
+regressorDir='/Users/karl/map/stimAndPredictors/targets/predictors/'
+# regressorDir='/Users/karl/map/stimAndPredictors/distractors/predictors/'
 
 # typeOfRegressor='mix'
-# typeOfRegressor='target'
-typeOfRegressor='distractor'
+typeOfRegressor='target'
+# typeOfRegressor='distractor'
 
 
-# nameOfRegressor='_ANmodel_correctedLevels'
+nameOfRegressor='_ANmodel_correctedLevels'
 # nameOfRegressor='_ANmodel'
-nameOfRegressor='~gammatone-1'
+# nameOfRegressor='~gammatone-1'
 # nameOfRegressor='~gammatone-on-1'
 
 #ANmodelNames=['longTrialNoTrigger_forReg_1.pickle','longTrialNoTrigger_forReg_2.pickle','longTrialNoTrigger_forReg_3.pickle',
@@ -140,14 +140,14 @@ denoiseMatlab=True
 # Low and high cutoff frequencies for main MNE bandpass filter
 # These are ok for looking for the FFR
 
-# l_freq=20
-# h_freq=1000
+l_freq=20
+h_freq=1000
 
 # l_freq=1
 # h_freq=1000
 
-l_freq=1
-h_freq=40
+# l_freq=1
+# h_freq=40
 
 
 
@@ -155,22 +155,22 @@ exgLabels=['EXG1','EXG2','EXG3','EXG4','EXG5','EXG6','EXG7','EXG8']
 
 
 
-# fs=5000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
-fs=2000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
+fs=5000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
+# fs=2000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
 
-eps=1e7
+# eps=1e7
 # eps=1e3
 # eps=1e0
-# eps=0
+eps=0
 
-# windowStart=-.01  # Time to analyze previous to event onset, in seconds. Will be converted to sample time for deconvolution below
-# windowEnd=.075
+windowStart=-.01  # Time to analyze previous to event onset, in seconds. Will be converted to sample time for deconvolution below
+windowEnd=.075
 
 # windowStart=-.01  # Time to analyze previous to event onset, in seconds. Will be converted to sample time for deconvolution below
 # windowEnd=.35
 
-windowStart=-.1  # Time to analyze previous to event onset, in seconds. Will be converted to sample time for deconvolution below
-windowEnd=.45
+# windowStart=-.1  # Time to analyze previous to event onset, in seconds. Will be converted to sample time for deconvolution below
+# windowEnd=.45
 
 printAllEvents=False
 
