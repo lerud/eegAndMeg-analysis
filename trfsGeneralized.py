@@ -108,6 +108,7 @@ regressorDir='/Users/karl/map/stimAndPredictors/distractors/predictors/'
 typeOfRegressor='distractor'
 
 
+# nameOfRegressor='_ANmodel_correctedLevels'
 # nameOfRegressor='_ANmodel'
 nameOfRegressor='~gammatone-1'
 # nameOfRegressor='~gammatone-on-1'
@@ -307,7 +308,7 @@ else:
     print('\n')
     print(f'Took {t1-t0} seconds to calculate')
     print('\n')
-    
+
 
 # %%
 if printAllEvents:
