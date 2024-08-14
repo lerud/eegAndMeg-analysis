@@ -623,36 +623,36 @@ if doPresentation:
     TRFsFreqPres=np.zeros([len(allPresEpochs), int(2*(lenToAnalyze*fs-windowStart*fs)), nChannels])
     TRFsTimePres=np.zeros([len(allPresEpochs), int(windowEnd*fs-windowStart*fs+1), nChannels])
     
-    if doParallel:
+    def doAllPresentationEpochs(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad):
+        epoch=allPresEpochs[i]
+        if allRegressors[i] is not None:
+            regressor=allRegressors[i]
+        else:
+            regressor=allRegressors[i-2]
+        currentEpochMat=epoch.get_data().squeeze().T
+        print(f'Regressor {regressorNames[i]} is shape {regressor.shape}, which is {regressor.shape[0]/fs} seconds, while')
+        print(f'EEG response matrix {i} for Triggy triggers is shape {currentEpochMat.shape}, which corresponds to {currentEpochMat.shape[0]/fs} seconds;')
+        print(f'Now resampling EEG response matrix to be length {regressor.shape[0]}')
+        print('\n')
+        response=sp.signal.resample(currentEpochMat, regressor.shape[0], axis=0)
+        print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
+        print('\n')
+        #response=epoch.get_data().squeeze().T
+        TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
+        #if regressor.shape[0]>response.shape[0]:
+        #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
+        #else:
+        #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
+        # TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
+        # TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
+        TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
+        TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
+        if allRegressors[i] is not None:
+            return TRFfreq, TRFtime
+        else:
+            return TRFfreq*np.nan, TRFtime*np.nan
     
-        def doAllPresentationEpochs(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad):
-            epoch=allPresEpochs[i]
-            if allRegressors[i] is not None:
-                regressor=allRegressors[i]
-            else:
-                regressor=allRegressors[i-2]
-            currentEpochMat=epoch.get_data().squeeze().T
-            print(f'Regressor {regressorNames[i]} is shape {regressor.shape}, which is {regressor.shape[0]/fs} seconds, while')
-            print(f'EEG response matrix {i} for Triggy triggers is shape {currentEpochMat.shape}, which corresponds to {currentEpochMat.shape[0]/fs} seconds;')
-            print(f'Now resampling EEG response matrix to be length {regressor.shape[0]}')
-            print('\n')
-            response=sp.signal.resample(currentEpochMat, regressor.shape[0], axis=0)
-            print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
-            print('\n')
-            #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
-            #if regressor.shape[0]>response.shape[0]:
-            #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
-            #else:
-            #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
-            # TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
-            # TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
-            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
-            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
-            if allRegressors[i] is not None:
-                return TRFfreq, TRFtime
-            else:
-                return TRFfreq*np.nan, TRFtime*np.nan
+    if doParallel:
 
         results = joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doAllPresentationEpochs)(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad) for i in range(len(allPresEpochs)))
 
@@ -663,88 +663,47 @@ if doPresentation:
         del results
         
     else:
-
-        for i, epoch in enumerate(allPresEpochs):
-            if allRegressors[i] is not None:
-                regressor=allRegressors[i]
-            else:
-                regressor=allRegressors[i-2]
-            currentEpochMat=epoch.get_data().squeeze().T
-            print(f'Regressor {regressorNames[i]} is shape {regressor.shape}, which is {regressor.shape[0]/fs} seconds, while')
-            print(f'EEG response matrix {i} for Presentation triggers is shape {currentEpochMat.shape}, which corresponds to {currentEpochMat.shape[0]/fs} seconds;')
-            print(f'Now resampling EEG response matrix to be length {regressor.shape[0]}')
-            print('\n')
-            response=sp.signal.resample(currentEpochMat, regressor.shape[0], axis=0)
-            print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
-            print('\n')
-            #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
-            #if regressor.shape[0]>response.shape[0]:
-            #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
-            #else:
-            #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
-            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
-            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
-            if allRegressors[i] is not None:
-                TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq
-                TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime
-            else:
-                TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq*np.nan
-                TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime*np.nan
-                
-    
-    
-    
-    
-    
-    
-    
-    
-    
         
-        #print(f'Shape of TRF matrix is now {TRFsPres.shape}')
-        #print('\n')
-
-        #plt.figure()
-        #plt.plot(denom.real)
-        #plt.figure()
-        #plt.plot(denom.imag)
+        for i in range(len(allPresEpochs)):
+            TRFfreq, TRFtime=doAllPresentationEpochs(i,allPresEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad)            
+            TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq
+            TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime
 
 if doTriggy:
 
     TRFsFreqTrig=np.zeros([len(allTrigEpochs), int(2*(lenToAnalyze*fs-windowStart*fs)), nChannels])
     TRFsTimeTrig=np.zeros([len(allTrigEpochs), int(windowEnd*fs-windowStart*fs+1), nChannels])
     
-    if doParallel:
+    def doAllTriggyEpochs(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad):
+        epoch=allTrigEpochs[i]
+        if allRegressors[i] is not None:
+            regressor=allRegressors[i]
+        else:
+            regressor=allRegressors[i-2]
+        currentEpochMat=epoch.get_data().squeeze().T
+        print(f'Regressor {regressorNames[i]} is shape {regressor.shape}, which is {regressor.shape[0]/fs} seconds, while')
+        print(f'EEG response matrix {i} for Triggy triggers is shape {currentEpochMat.shape}, which corresponds to {currentEpochMat.shape[0]/fs} seconds;')
+        print(f'Now resampling EEG response matrix to be length {regressor.shape[0]}')
+        print('\n')
+        response=sp.signal.resample(currentEpochMat, regressor.shape[0], axis=0)
+        print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
+        print('\n')
+        #response=epoch.get_data().squeeze().T
+        TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
+        #if regressor.shape[0]>response.shape[0]:
+        #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
+        #else:
+        #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
+        # TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
+        # TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
+        TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
+        TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
+        if allRegressors[i] is not None:
+            return TRFfreq, TRFtime
+        else:
+            return TRFfreq*np.nan, TRFtime*np.nan
     
-        def doAllTriggyEpochs(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad):
-            epoch=allTrigEpochs[i]
-            if allRegressors[i] is not None:
-                regressor=allRegressors[i]
-            else:
-                regressor=allRegressors[i-2]
-            currentEpochMat=epoch.get_data().squeeze().T
-            print(f'Regressor {regressorNames[i]} is shape {regressor.shape}, which is {regressor.shape[0]/fs} seconds, while')
-            print(f'EEG response matrix {i} for Triggy triggers is shape {currentEpochMat.shape}, which corresponds to {currentEpochMat.shape[0]/fs} seconds;')
-            print(f'Now resampling EEG response matrix to be length {regressor.shape[0]}')
-            print('\n')
-            response=sp.signal.resample(currentEpochMat, regressor.shape[0], axis=0)
-            print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
-            print('\n')
-            #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
-            #if regressor.shape[0]>response.shape[0]:
-            #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
-            #else:
-            #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
-            # TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
-            # TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
-            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
-            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
-            if allRegressors[i] is not None:
-                return TRFfreq, TRFtime
-            else:
-                return TRFfreq*np.nan, TRFtime*np.nan
+    if doParallel:
 
         results = joblib.Parallel(n_jobs=n_jobs, backend=parallelBackend, verbose=49)(joblib.delayed(doAllTriggyEpochs)(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad) for i in range(len(allTrigEpochs)))
 
@@ -754,49 +713,14 @@ if doTriggy:
 
         del results
         
-    else:  
+    else:
         
-        for i, epoch in enumerate(allTrigEpochs):
-            if allRegressors[i] is not None:
-                regressor=allRegressors[i]
-            else:
-                regressor=allRegressors[i-2]
-            currentEpochMat=epoch.get_data().squeeze().T
-            print(f'Regressor {regressorNames[i]} is shape {regressor.shape}, which is {regressor.shape[0]/fs} seconds, while')
-            print(f'EEG response matrix {i} for Triggy triggers is shape {currentEpochMat.shape}, which corresponds to {currentEpochMat.shape[0]/fs} seconds;')
-            print(f'Now resampling EEG response matrix to be length {regressor.shape[0]}')
-            print('\n')
-            response=sp.signal.resample(currentEpochMat, regressor.shape[0], axis=0)
-            print(f'And then truncating both to be exactly length {lenToAnalyze*fs}')
-            print('\n')
-            #response=epoch.get_data().squeeze().T
-            TRFfreq, TRFtime=deconvMain(regressor[:lenToAnalyze*fs], response[:lenToAnalyze*fs,:], eps, windowStart=(windowStart-edgePad)*fs, windowEnd=(windowEnd+edgePad)*fs)
-            #if regressor.shape[0]>response.shape[0]:
-            #    TRF=deconvMain(regressor[:response.shape[0]], response, eps, windowStart=windowStart*fs)
-            #else:
-            #    TRF=deconvMain(regressor, response[:regressor.shape[0]], eps, windowStart=windowStart*fs)
-            TRFfreq=TRFfreq[int(2*edgePad*fs):,:]
-            TRFtime=TRFtime[int(edgePad*fs):int(-edgePad*fs-1),:]
-            if allRegressors[i] is not None:
-                TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq
-                TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime
-            else:
-                TRFsFreqPres[i,:TRFfreq.shape[0],:]=TRFfreq*np.nan
-                TRFsTimePres[i,:TRFtime.shape[0],:]=TRFtime*np.nan
-                
-                
-            #print(f'Shape of TRF matrix is now {TRFsPres.shape}')
-            #print('\n')
-
-        #plt.figure()
-        #plt.plot(denom.real)
-        #plt.figure()
-        #plt.plot(denom.imag)
-
-
-#TRFsPres=np.array(TRFsPres)
-#TRFsTrig=np.array(TRFsTrig)
-
+        for i in range(len(allTrigEpochs)):
+            TRFfreq, TRFtime=doAllTriggyEpochs(i,allTrigEpochs,allRegressors,regressorNames,fs,lenToAnalyze,eps,windowStart,windowEnd,edgePad)            
+            TRFsFreqTrig[i,:TRFfreq.shape[0],:]=TRFfreq
+            TRFsTimeTrig[i,:TRFtime.shape[0],:]=TRFtime
+            
+            
 if doPresentation:
 
     print(f'Shape of frequency-domain Presentation TRF matrix is now {TRFsFreqPres.shape}')
