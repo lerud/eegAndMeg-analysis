@@ -23,20 +23,20 @@ import pandas as pd
 from IPython.display import Audio
 
 sns.set()
-plt.rcParams['figure.dpi'] = 100
-#matplotlib.use('TkAgg')
-matplotlib.use('QtAgg')
+plt.rcParams["figure.dpi"] = 100
+# matplotlib.use('TkAgg')
+matplotlib.use("QtAgg")
 plt.ion()
 
 # %%
-parentDir='/Users/karl/Dropbox/UMD/'
-#parentDir='/media/karl/Data/Dropbox/UMD/'
+parentDir = "/Users/karl/Dropbox/UMD/"
+# parentDir='/media/karl/Data/Dropbox/UMD/'
 
-snd = pm.Sound(parentDir+'audioBehavMixes/3_mix6.wav')
-#snd = pm.Sound(parentDir+'testf0.wav')
+snd = pm.Sound(parentDir + "audioBehavMixes/3_mix6.wav")
+# snd = pm.Sound(parentDir+'testf0.wav')
 
 # %%
-#snd_part = snd.extract_part(from_time=1.6, to_time=2.4, preserve_times=True)
+# snd_part = snd.extract_part(from_time=1.6, to_time=2.4, preserve_times=True)
 snd_part = snd.extract_part(from_time=1.6, to_time=2.4, preserve_times=False)
 
 plt.figure()
@@ -51,14 +51,15 @@ plt.show()
 def draw_spectrogram(spectrogram, dynamic_range=70):
     X, Y = spectrogram.x_grid(), spectrogram.y_grid()
     sg_db = 10 * np.log10(spectrogram.values)
-    plt.pcolormesh(X, Y, sg_db, vmin=sg_db.max() - dynamic_range, cmap='afmhot')
+    plt.pcolormesh(X, Y, sg_db, vmin=sg_db.max() - dynamic_range, cmap="afmhot")
     plt.ylim([spectrogram.ymin, spectrogram.ymax])
     plt.xlabel("time [s]")
     plt.ylabel("frequency [Hz]")
-    plt.colorbar(pad=.12)
+    plt.colorbar(pad=0.12)
+
 
 def draw_intensity(intensity):
-    plt.plot(intensity.xs(), intensity.values.T, linewidth=3, color='w')
+    plt.plot(intensity.xs(), intensity.values.T, linewidth=3, color="w")
     plt.plot(intensity.xs(), intensity.values.T, linewidth=1)
     plt.grid(False)
     plt.ylim(0)
@@ -66,7 +67,7 @@ def draw_intensity(intensity):
 
 
 # %%
-#snd=snd_part
+# snd=snd_part
 
 # %%
 intensity = snd.to_intensity()
@@ -83,10 +84,10 @@ plt.show()
 def draw_pitch(pitch):
     # Extract selected pitch contour, and
     # replace unvoiced samples by NaN to not plot
-    pitch_values = pitch.selected_array['frequency']
-    pitch_values[pitch_values==0] = np.nan
-    plt.plot(pitch.xs(), pitch_values, 'o', markersize=5, color='w')
-    plt.plot(pitch.xs(), pitch_values, 'o', markersize=2)
+    pitch_values = pitch.selected_array["frequency"]
+    pitch_values[pitch_values == 0] = np.nan
+    plt.plot(pitch.xs(), pitch_values, "o", markersize=5, color="w")
+    plt.plot(pitch.xs(), pitch_values, "o", markersize=2)
     plt.grid(False)
     plt.ylim(0, pitch.ceiling)
     plt.ylabel("fundamental frequency [Hz]")
@@ -106,26 +107,26 @@ plt.xlim([snd.xmin, snd.xmax])
 plt.show()
 
 # %%
-#pre_emphasized_snd = snd.copy()
-#pre_emphasized_snd.pre_emphasize()
-#spectrogram = pre_emphasized_snd.to_spectrogram(window_length=0.03, maximum_frequency=4000)
+# pre_emphasized_snd = snd.copy()
+# pre_emphasized_snd.pre_emphasize()
+# spectrogram = pre_emphasized_snd.to_spectrogram(window_length=0.03, maximum_frequency=4000)
 
-#plt.figure()
-#draw_spectrogram(spectrogram)
-#plt.twinx()
-#draw_pitch(pitch)
-#plt.xlim([snd.xmin, snd.xmax])
-#plt.show()
-
-# %%
-#pitch.selected[
+# plt.figure()
+# draw_spectrogram(spectrogram)
+# plt.twinx()
+# draw_pitch(pitch)
+# plt.xlim([snd.xmin, snd.xmax])
+# plt.show()
 
 # %%
-dispAttribute='frequency'
+# pitch.selected[
 
-pitchInterped=pitch.interpolate()
-#manipulation=pm.praat.call(snd, "To Manipulation", 0.01, 75, 600)
-#pitch_tier=pm.praat.call(manipulation, "Extract pitch tier")
+# %%
+dispAttribute = "frequency"
+
+pitchInterped = pitch.interpolate()
+# manipulation=pm.praat.call(snd, "To Manipulation", 0.01, 75, 600)
+# pitch_tier=pm.praat.call(manipulation, "Extract pitch tier")
 
 plt.figure()
 plt.plot(pitch.selected_array[dispAttribute])
@@ -136,8 +137,8 @@ plt.plot(pitchInterped.selected_array[dispAttribute])
 plt.show()
 
 # %%
-t=snd.ts()
-x=snd.values.T
+t = snd.ts()
+x = snd.values.T
 
 # %%
 
@@ -148,111 +149,104 @@ x=snd.values.T
 # %%
 
 # %%
-contour=pitchInterped.selected_array['frequency']
+contour = pitchInterped.selected_array["frequency"]
 
-beginCount=0
-if contour[beginCount]==0:
-    while contour[beginCount]==0:
-        beginCount+=1
-        beginFreq=contour[beginCount]
-    contour[0:beginCount]=beginFreq
+beginCount = 0
+if contour[beginCount] == 0:
+    while contour[beginCount] == 0:
+        beginCount += 1
+        beginFreq = contour[beginCount]
+    contour[0:beginCount] = beginFreq
 
-endCount=len(contour)-1
-if contour[endCount]==0:
-    while contour[endCount]==0:
-        endCount-=1
-        endFreq=contour[endCount]
-    contour[endCount+1:]=endFreq
+endCount = len(contour) - 1
+if contour[endCount] == 0:
+    while contour[endCount] == 0:
+        endCount -= 1
+        endFreq = contour[endCount]
+    contour[endCount + 1 :] = endFreq
 
-tShort=np.linspace(t[0],t[-1],len(contour))
-createInterpedContour=sp.interpolate.CubicSpline(tShort,contour)
-interpedContour=createInterpedContour(t)
+tShort = np.linspace(t[0], t[-1], len(contour))
+createInterpedContour = sp.interpolate.CubicSpline(tShort, contour)
+interpedContour = createInterpedContour(t)
 
 plt.figure()
-plt.plot(t,sp.interpolate.interp1d(tShort,pitch.selected_array[dispAttribute])(t),
-         t,sp.interpolate.interp1d(tShort,pitchInterped.selected_array[dispAttribute])(t),t,interpedContour)
+plt.plot(
+    t,
+    sp.interpolate.interp1d(tShort, pitch.selected_array[dispAttribute])(t),
+    t,
+    sp.interpolate.interp1d(tShort, pitchInterped.selected_array[dispAttribute])(t),
+    t,
+    interpedContour,
+)
 plt.show()
-
-
-
-
 
 
 # This works pretty well
 
-invRelPitch=interpedContour[0]/interpedContour  # This is the right shape, but not the right calculation, or units
-
-
-
-
+invRelPitch = (
+    interpedContour[0] / interpedContour
+)  # This is the right shape, but not the right calculation, or units
 
 
 # This works pretty well too
 
-#invRelPitch=(interpedContour*-1+2*interpedContour[0])
-#invRelPitch=invRelPitch/invRelPitch[0]
-#factor=np.sqrt(2)/2
-#invRelPitch=invRelPitch*factor+1-factor
+# invRelPitch=(interpedContour*-1+2*interpedContour[0])
+# invRelPitch=invRelPitch/invRelPitch[0]
+# factor=np.sqrt(2)/2
+# invRelPitch=invRelPitch*factor+1-factor
 
 
+# interpedPeriods=1/interpedContour
+# invRelPeriods=interpedPeriods/interpedPeriods[0]
 
-
-
-
-
-
-
-#interpedPeriods=1/interpedContour
-#invRelPeriods=interpedPeriods/interpedPeriods[0]
-
-#relPitchIntegral=np.cumsum(invRelPitch-1)/snd.sampling_frequency
+# relPitchIntegral=np.cumsum(invRelPitch-1)/snd.sampling_frequency
 
 fig, ax1 = plt.subplots()
-ax1.plot(t,interpedContour,color='tab:blue')
-ax1.set_xlabel('Time (Sec)')
-ax1.set_ylabel('Frequency (Hz)', color='tab:blue')
-ax2=ax1.twinx()
-ax2.plot(t,invRelPitch,color='tab:red')
-#ax2.plot(t,invPitch,color='tab:red')
-ax2.set_ylabel('Frequency (Hz)', color='tab:red')
-#ax2.plot(t,invRelPeriods,color='tab:red')
-#ax2.set_ylabel('Relative periods (Sec/Sec)', color='tab:red')
+ax1.plot(t, interpedContour, color="tab:blue")
+ax1.set_xlabel("Time (Sec)")
+ax1.set_ylabel("Frequency (Hz)", color="tab:blue")
+ax2 = ax1.twinx()
+ax2.plot(t, invRelPitch, color="tab:red")
+# ax2.plot(t,invPitch,color='tab:red')
+ax2.set_ylabel("Frequency (Hz)", color="tab:red")
+# ax2.plot(t,invRelPeriods,color='tab:red')
+# ax2.set_ylabel('Relative periods (Sec/Sec)', color='tab:red')
 plt.show()
 
 # %%
 plt.figure()
-plt.plot(t,x)
+plt.plot(t, x)
 plt.show()
-#plt.close('all')
-createNewX=sp.interpolate.CubicSpline(t,x)
-#warper=-.05*np.sin(2*np.pi*(snd.sampling_frequency/len(x))*t)
-#warper=warper+1-warper[0]
-#warper=np.linspace(.9,.9,len(x))
-#warper=relPitchIntegral
-#warper=np.cumsum(invPitch)-invPitch[0]
-#warper=np.cumsum(invRelPitch)-invRelPitch[0]
-warper=np.cumsum(invRelPitch)-invRelPitch[0]
-createNewRelPitch=sp.interpolate.CubicSpline(np.arange(len(invRelPitch)),invRelPitch)
-newRelPitch=createNewRelPitch(warper)
-newWarper=np.cumsum(newRelPitch)-newRelPitch[0]
+# plt.close('all')
+createNewX = sp.interpolate.CubicSpline(t, x)
+# warper=-.05*np.sin(2*np.pi*(snd.sampling_frequency/len(x))*t)
+# warper=warper+1-warper[0]
+# warper=np.linspace(.9,.9,len(x))
+# warper=relPitchIntegral
+# warper=np.cumsum(invPitch)-invPitch[0]
+# warper=np.cumsum(invRelPitch)-invRelPitch[0]
+warper = np.cumsum(invRelPitch) - invRelPitch[0]
+createNewRelPitch = sp.interpolate.CubicSpline(np.arange(len(invRelPitch)), invRelPitch)
+newRelPitch = createNewRelPitch(warper)
+newWarper = np.cumsum(newRelPitch) - newRelPitch[0]
 
-#newT=warper/(snd.sampling_frequency)/120
-#newT=warper/(snd.sampling_frequency)
-newT=newWarper/(snd.sampling_frequency)
+# newT=warper/(snd.sampling_frequency)/120
+# newT=warper/(snd.sampling_frequency)
+newT = newWarper / (snd.sampling_frequency)
 
-#warper=invRelPitch*1.5
+# warper=invRelPitch*1.5
 
-#newT=t*warper
+# newT=t*warper
 plt.figure()
-plt.plot(t,warper,t,newWarper)
+plt.plot(t, warper, t, newWarper)
 plt.show()
 plt.figure()
-plt.plot(t,invRelPitch,t,newRelPitch)
+plt.plot(t, invRelPitch, t, newRelPitch)
 plt.show()
-newX=createNewX(newT)
-#plt.figure()
-#plt.plot(t,x,t,newX)
-#plt.show()
+newX = createNewX(newT)
+# plt.figure()
+# plt.plot(t,x,t,newX)
+# plt.show()
 
 plt.figure()
 plt.plot(t)
@@ -266,14 +260,14 @@ Audio(data=x.T, rate=snd.sampling_frequency)
 Audio(data=newX.T, rate=snd.sampling_frequency)
 
 # %%
-#plt.close('all')
+# plt.close('all')
 snd.sampling_frequency
 
 # %%
 sp.io.wavfile.write("3_mix6_warped.wav", int(snd.sampling_frequency), newX)
 
 # %%
-sndTest = pm.Sound('3_mix6_warped.wav')
+sndTest = pm.Sound("3_mix6_warped.wav")
 
 # %%
 pitchTest = sndTest.to_pitch()
@@ -287,7 +281,7 @@ plt.xlim([snd.xmin, snd.xmax])
 plt.show()
 
 # %%
-#plt.close('all')
+# plt.close('all')
 
 # %%
 
@@ -298,13 +292,13 @@ plt.show()
 # %%
 
 # %%
-len(interpedContour)/24000
+len(interpedContour) / 24000
 
 # %%
 t[-1]
 
 # %%
-#mdict={'interpedContour':interpedContour}
-#sp.io.savemat("interpedContour.mat", mdict)
+# mdict={'interpedContour':interpedContour}
+# sp.io.savemat("interpedContour.mat", mdict)
 
 # %%

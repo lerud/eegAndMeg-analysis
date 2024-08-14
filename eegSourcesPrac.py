@@ -23,24 +23,25 @@ import matplotlib.pyplot as plt
 import os.path as op
 from mne.datasets import eegbci
 from mne.datasets import fetch_fsaverage
-#matplotlib.use('TkAgg')
+
+# matplotlib.use('TkAgg')
 
 # %%
-#subjects_dir='/usr/local/freesurfer/subjects/'
-#subject='JZS_OLD'
-#subject='fsaverage'
-#subject='MP2'
+# subjects_dir='/usr/local/freesurfer/subjects/'
+# subject='JZS_OLD'
+# subject='fsaverage'
+# subject='MP2'
 
 # %%
-#plot_bem_kwargs = dict(
+# plot_bem_kwargs = dict(
 #    subject=subject,
 #    subjects_dir=subjects_dir,
 #    brain_surfaces=["pial","white"],
 #    orientation="coronal",
 #    slices=[50, 75, 100, 125, 150, 175, 200],
-#)
+# )
 
-#mne.viz.plot_bem(**plot_bem_kwargs)
+# mne.viz.plot_bem(**plot_bem_kwargs)
 
 # %%
 # Download fsaverage files
@@ -54,8 +55,8 @@ src = op.join(fs_dir, "bem", "fsaverage-ico-5-src.fif")
 bem = op.join(fs_dir, "bem", "fsaverage-5120-5120-5120-bem-sol.fif")
 
 # %%
-tonesDenoised=mne.io.read_raw('tonesDenoised.fif')
-events=mne.find_events(tonesDenoised)
+tonesDenoised = mne.io.read_raw("tonesDenoised.fif")
+events = mne.find_events(tonesDenoised)
 tonesDenoised.set_eeg_reference(projection=True)  # needed for inverse modeling
 mne.viz.plot_alignment(
     tonesDenoised.info,
@@ -72,22 +73,27 @@ tonesDenoised.apply_proj()
 
 # %%
 fwd = mne.make_forward_solution(
-    tonesDenoised.info, trans=trans, src=src, bem=bem, eeg=True, mindist=5.0, n_jobs=None
+    tonesDenoised.info,
+    trans=trans,
+    src=src,
+    bem=bem,
+    eeg=True,
+    mindist=5.0,
+    n_jobs=None,
 )
 print(fwd)
 
 # %%
-#toneEpochs=eb.load.unpickle('toneEpochs')
-#tonesEvoked=eb.load.unpickle('tonesEvoked')
+# toneEpochs=eb.load.unpickle('toneEpochs')
+# tonesEvoked=eb.load.unpickle('tonesEvoked')
 
 # %%
-event_dict = {
-    "Tones": 130}
+event_dict = {"Tones": 130}
 reject_criteria = dict(
-#    mag=4000e-15,  # 4000 fT
-#   grad=4000e-13,  # 4000 fT/cm
+    #    mag=4000e-15,  # 4000 fT
+    #   grad=4000e-13,  # 4000 fT/cm
     eeg=550e-6,  # 150 µV
-#    eog=250e-6,
+    #    eog=250e-6,
 )  # 250 µV
 epochs = mne.Epochs(
     tonesDenoised,
@@ -98,8 +104,8 @@ epochs = mne.Epochs(
     reject=reject_criteria,
     preload=True,
 )
-toneEpochs=epochs["Tones"]
-tonesEvoked=toneEpochs.average()
+toneEpochs = epochs["Tones"]
+tonesEvoked = toneEpochs.average()
 
 # %%
 noise_cov = mne.compute_covariance(
@@ -110,7 +116,8 @@ fig_cov, fig_spectra = mne.viz.plot_cov(noise_cov, tonesDenoised.info)
 
 # %%
 inverse_operator = mne.minimum_norm.make_inverse_operator(
-    tonesEvoked.info, fwd, noise_cov, loose=0.2, depth=0.8)
+    tonesEvoked.info, fwd, noise_cov, loose=0.2, depth=0.8
+)
 
 # %%
 method = "dSPM"
@@ -127,22 +134,22 @@ stc, residual = mne.minimum_norm.apply_inverse(
 )
 
 # %%
-#fig, ax = plt.subplots()
-#ax.plot(1e3 * stc.times, stc.data[::100, :].T)
-#ax.set(xlabel="time (ms)", ylabel="%s value" % method)
+# fig, ax = plt.subplots()
+# ax.plot(1e3 * stc.times, stc.data[::100, :].T)
+# ax.set(xlabel="time (ms)", ylabel="%s value" % method)
 
-#fig, ax = plt.subplots(1, 1)
-#tonesEvoked.plot(axes=ax)
-#for text in list(ax.texts):
+# fig, ax = plt.subplots(1, 1)
+# tonesEvoked.plot(axes=ax)
+# for text in list(ax.texts):
 #    text.remove()
-#for line in ax.lines:
+# for line in ax.lines:
 #    line.set_color("#98df81")
-#residual.plot(axes=ax)
+# residual.plot(axes=ax)
 
 # %%
 vertno_max, time_max = stc.get_peak(hemi="rh")
 
-#subjects_dir = data_path / "subjects"
+# subjects_dir = data_path / "subjects"
 surfer_kwargs = dict(
     hemi="rh",
     subjects_dir=subjects_dir,

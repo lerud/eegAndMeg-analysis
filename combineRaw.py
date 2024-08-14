@@ -15,14 +15,14 @@
 # %%
 import mne
 
-mainDir='/Users/karl/map/'
-subject='R3095'
-rawDir='/eegAndMeg/meg/'
-rawName1=subject+'_maintask1-raw.fif'
-rawName2=subject+'_maintask2-raw.fif'
-outName=subject+'_maintask_complete-raw.fif'
+mainDir = "/Users/karl/map/"
+subject = "R3095"
+rawDir = "/eegAndMeg/meg/"
+rawName1 = subject + "_maintask1-raw.fif"
+rawName2 = subject + "_maintask2-raw.fif"
+outName = subject + "_maintask_complete-raw.fif"
 
-raw=mne.io.read_raw_fif(mainDir+subject+rawDir+rawName1)
-raw2=mne.io.read_raw_fif(mainDir+subject+rawDir+rawName2)
+raw = mne.io.read_raw_fif(mainDir + subject + rawDir + rawName1)
+raw2 = mne.io.read_raw_fif(mainDir + subject + rawDir + rawName2)
 raw.append(raw2)
-raw.save(mainDir+subject+rawDir+outName,overwrite=True)
+raw.save(mainDir + subject + rawDir + outName, overwrite=True)
