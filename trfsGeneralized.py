@@ -792,7 +792,7 @@ if doPresentation:
         [len(allPresEpochs), int(2 * (lenToAnalyze * fs - windowStart * fs)), nChannels]
     )
     TRFsTimePres = np.zeros(
-        [len(allPresEpochs), int(windowEnd * fs - windowStart * fs + 1), nChannels]
+        [len(allPresEpochs), int(windowEnd * fs - windowStart * fs), nChannels]
     )
 
     def doAllPresentationEpochs(
@@ -893,7 +893,7 @@ if doTriggy:
         [len(allTrigEpochs), int(2 * (lenToAnalyze * fs - windowStart * fs)), nChannels]
     )
     TRFsTimeTrig = np.zeros(
-        [len(allTrigEpochs), int(windowEnd * fs - windowStart * fs + 1), nChannels]
+        [len(allTrigEpochs), int(windowEnd * fs - windowStart * fs), nChannels]
     )
 
     def doAllTriggyEpochs(
