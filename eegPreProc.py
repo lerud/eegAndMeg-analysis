@@ -22,7 +22,7 @@ import scipy as sp
 # %%
 mainDir = "/Users/karl/map/"
 
-subject = "R2877"
+subject = "R3045"
 
 subDirs = "/eegAndMeg/eeg/"
 # subDirs='/ffrTests/'

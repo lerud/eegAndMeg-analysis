@@ -28,27 +28,32 @@ plt.ion()
 
 # %%
 # subject='R3151';badChanList=['C3','FC5']
-subject = "R2774"
-badChanList = [
-    "Fp1",
-    "AF3",
-    "F7",
-    "F3",
-    "Fz",
-    "F4",
-    "FC6",
-    "C3",
-    "CP5",
-    "Pz",
-    "CP6",
-    "P8",
-    "FC1",
-    "FC5",
-    "T7",
-    "AF4",
-]
+
+# subject = "R2774"
+# badChanList = [
+#     "Fp1",
+#     "AF3",
+#     "F7",
+#     "F3",
+#     "Fz",
+#     "F4",
+#     "FC6",
+#     "C3",
+#     "CP5",
+#     "Pz",
+#     "CP6",
+#     "P8",
+#     "FC1",
+#     "FC5",
+#     "T7",
+#     "AF4",
+# ]
+
 # subject='R3152';badChanList=['T7','C3','P7','Pz','O1','P8','CP6']
 # subject='R2877';badChanList=['CP5','P7','F3','FC5','C3','P4','FC6','FC1','P8']
+subject = "R3157"
+badChanList = ["CP6"]  # Keep an eye on CP2 and possibly others
+# subject='R2783';badChanList=['T7','P7','CP5']
 
 runName = "tones"
 # runName='stacks'
@@ -125,7 +130,7 @@ changeChTypes = {
 }
 tonesDenoised.set_channel_types(changeChTypes)
 tonesDenoised.set_montage(easycap_montage)
-notchFreqs = np.arange(60, 8192, 120)
+notchFreqs = np.arange(60, 8192, 60)
 if not denoiseMatlab:
     tonesDenoised.notch_filter(notchFreqs)
 
@@ -234,6 +239,7 @@ event_dict = {"Tones": eventID}
 reject_criteria = dict(
     #    mag=4000e-15,  # 4000 fT
     #   grad=4000e-13,  # 4000 fT/cm
+    # eeg=250e-6,  # 150 µV  # Often this threshold seems best
     eeg=550e-6,  # 150 µV  # Often this threshold seems best
     #    eeg=550e-5,  # 150 µV
     #    eog=250e-6,

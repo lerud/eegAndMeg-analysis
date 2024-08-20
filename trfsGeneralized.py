@@ -43,6 +43,7 @@ presStopCorrection = None
 
 # subject='R2881';badChanList=['P3','Fp1','CP6']
 
+# subject = "R3045";badChanList=None;condition="A";presStopCorrection=0
 # subject='R3089';badChanList=['P7','CP6','C4','T7','CP5','P3','P4','O2','Oz','PO4'];condition='B';presStopCorrection=0
 # subject='R3093';badChanList=['Oz','P8','CP6','Fp2'];condition='C';presStopCorrection=0
 # subject='R3095';badChanList=['P7','T8','O2','PO4'];condition='D';presStopCorrection=0  # and possibly O2 and PO4
@@ -53,6 +54,12 @@ presStopCorrection = None
 subject = "R2877"
 badChanList = ["CP5", "P7", "F3", "FC5", "C3", "P4", "FC6", "FC1", "P8"]
 condition = "D"
+
+# subject='R3157';badChanList=['CP6'];condition='A'  # Keep an eye on CP2 and possibly others
+# subject='R3157';badChanList=None;condition='A'  # Keep an eye on CP2 and possibly others
+# subject='R2783';badChanList=['T7','P7','CP5'];condition='B'
+# subject='R2783';badChanList=None;condition='B'
+
 
 doParallel = True
 n_jobs = 16
@@ -180,8 +187,8 @@ edgePad = 0.001  # Edge padding in seconds; compute the TRFs with this padding i
 l_freq = 20
 h_freq = 1000
 
-# l_freq=1
-# h_freq=1000
+# l_freq=2
+# h_freq=None
 
 # l_freq=1
 # h_freq=40
@@ -191,11 +198,11 @@ exgLabels = ["EXG1", "EXG2", "EXG3", "EXG4", "EXG5", "EXG6", "EXG7", "EXG8"]
 
 
 fs = 5000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
-# fs=2000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
+# fs = 2000  # This is the fs to actually be used in analysis below. This should be the same fs as the predictors/regressors that are being read in
 
-# eps=1e7
-# eps=1e3
-# eps=1e0
+# eps = 1e7
+# eps = 1e3
+# eps = 1e0
 eps = 0
 
 windowStart = (
@@ -510,10 +517,11 @@ print("\n")
 # %%
 
 # %%
-# denoised.filter(l_freq=.1,h_freq=20)
-# denoised.filter(l_freq=10,h_freq=50)
-denoised.filter(l_freq=l_freq, h_freq=h_freq)
-print("\n")
+if l_freq is not None or h_freq is not None:
+    # denoised.filter(l_freq=.1,h_freq=20)
+    # denoised.filter(l_freq=10,h_freq=50)
+    denoised.filter(l_freq=l_freq, h_freq=h_freq)
+    print("\n")
 print(denoised.info)
 
 # %%
